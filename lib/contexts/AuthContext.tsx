@@ -20,6 +20,7 @@ interface AuthContextType {
   user: User | null
   profile: Profile | null
   loading: boolean
+  isAdmin: boolean
   signUp: (email: string, password: string, metadata?: { full_name?: string }) => Promise<{ error: any }>
   signIn: (email: string, password: string) => Promise<{ error: any }>
   signOut: () => Promise<void>
@@ -32,6 +33,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
+  
+  const isAdmin = user?.user_metadata?.role === 'admin'
 
   useEffect(() => {
     // Get initial session
@@ -124,6 +127,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     profile,
     loading,
+    isAdmin,
     signUp,
     signIn,
     signOut,

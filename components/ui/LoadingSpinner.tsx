@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { cn } from '../../lib/utils'
 
 interface LoadingSpinnerProps {
@@ -17,23 +18,23 @@ export function LoadingSpinner({
     lg: 'h-12 w-12'
   }
 
-  const colorClasses = {
-    primary: 'border-cyan-500',
-    secondary: 'border-gray-400',
-    white: 'border-white'
-  }
-
   return (
     <div
       className={cn(
-        'animate-spin rounded-full border-2 border-transparent',
+        'animate-pulse',
         sizeClasses[size],
-        `${colorClasses[color]} border-t-current`,
         className
       )}
       role="status"
       aria-label="Loading"
     >
+      <Image
+        src="/assets/logos/StudioSen2024slim.svg"
+        alt="Loading..."
+        width={48}
+        height={12}
+        className="w-full h-auto opacity-30 filter grayscale"
+      />
       <span className="sr-only">Loading...</span>
     </div>
   )

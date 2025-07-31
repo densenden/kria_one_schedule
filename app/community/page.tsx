@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Navigation } from '../../components/ui/Navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
+import { Modal } from '../../components/ui/Modal'
 import { useAuth } from '../../lib/contexts/AuthContext'
 import { 
   Users, 
@@ -49,6 +50,7 @@ export default function CommunityPage() {
   const [participants, setParticipants] = useState<Participant[]>([])
   const [loading, setLoading] = useState(true)
   const [participantsLoading, setParticipantsLoading] = useState(false)
+  const [selectedUser, setSelectedUser] = useState<any>(null)
   const { user, loading: authLoading } = useAuth()
   const router = useRouter()
 
@@ -218,8 +220,12 @@ export default function CommunityPage() {
               ) : participants.length > 0 ? (
                 <div className="space-y-3">
                   {participants.map((participant) => (
-                    <div key={participant.booking_id} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-                      <div className="w-12 h-12 rounded-full bg-cyan-100 flex items-center justify-center overflow-hidden">
+                    <div 
+                      key={participant.booking_id} 
+                      className="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
+                      onClick={() => participant.user.is_public && setSelectedUser(participant.user)}
+                    >
+                      <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center overflow-hidden">
                         {participant.user.avatar_url ? (
                           <img
                             src={participant.user.avatar_url}
@@ -227,16 +233,16 @@ export default function CommunityPage() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <User className="h-6 w-6 text-cyan-600" />
+                          <User className="h-6 w-6 text-primary" />
                         )}
                       </div>
                       
                       <div className="flex-1">
-                        <div className="font-medium text-gray-900">
+                        <div className="font-medium text-gray-900 dark:text-gray-100">
                           {participant.user.full_name}
                         </div>
                         {participant.user.username && (
-                          <div className="text-sm text-gray-500">
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
                             @{participant.user.username}
                           </div>
                         )}
@@ -287,19 +293,19 @@ export default function CommunityPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
           <Card>
             <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-cyan-600 mb-2">
+              <div className="text-3xl font-bold text-primary mb-2">
                 {schedules.reduce((sum, s) => sum + s.participant_count, 0)}
               </div>
-              <div className="text-sm text-gray-600">Total Active Participants</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Total Active Participants</div>
             </CardContent>
           </Card>
           
           <Card>
             <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-ultramarine-600 mb-2">
+              <div className="text-3xl font-bold text-secondary-jungle-teal mb-2">
                 {schedules.filter(s => s.participant_count > 0).length}
               </div>
-              <div className="text-sm text-gray-600">Sessions with Participants</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Sessions with Participants</div>
             </CardContent>
           </Card>
           
@@ -311,11 +317,105 @@ export default function CommunityPage() {
                   Math.max(schedules.length, 1) * 100
                 )}%
               </div>
-              <div className="text-sm text-gray-600">Average Capacity</div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Average Capacity</div>
             </CardContent>
           </Card>
         </div>
       </main>
+
+      {/* User Profile Modal */}
+      {selectedUser && (
+        <Modal isOpen={!!selectedUser} onClose={() => setSelectedUser(null)} maxWidth="lg">
+          <div className="space-y-6">
+            <div className="flex items-center gap-4">
+              <div className="w-20 h-20 rounded-full bg-primary-100 flex items-center justify-center overflow-hidden">
+                {selectedUser.avatar_url ? (
+                  <img
+                    src={selectedUser.avatar_url}
+                    alt={selectedUser.full_name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="h-10 w-10 text-primary" />
+                )}
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                  {selectedUser.full_name}
+                </h2>
+                {selectedUser.username && (
+                  <p className="text-gray-600 dark:text-gray-400">@{selectedUser.username}</p>
+                )}
+              </div>
+            </div>
+
+            {selectedUser.bio && (
+              <div>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">About</h3>
+                <p className="text-gray-700 dark:text-gray-300">{selectedUser.bio}</p>
+              </div>
+            )}
+
+            {selectedUser.athlete_info && (
+              <div className="space-y-4">
+                {selectedUser.athlete_info.experience && (
+                  <div>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Experience Level</h3>
+                    <span className="px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm">
+                      {selectedUser.athlete_info.experience}
+                    </span>
+                  </div>
+                )}
+
+                {selectedUser.athlete_info.goals && selectedUser.athlete_info.goals.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Goals</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedUser.athlete_info.goals.map((goal: string) => (
+                        <span key={goal} className="px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm capitalize">
+                          {goal}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {selectedUser.athlete_info.preferences && selectedUser.athlete_info.preferences.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Preferences</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedUser.athlete_info.preferences.map((pref: string) => (
+                        <span key={pref} className="px-3 py-1 bg-secondary-jungle-teal/20 text-secondary-jungle-teal rounded-full text-sm capitalize">
+                          {pref}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {selectedUser.athlete_info.sports && selectedUser.athlete_info.sports.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Sports</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedUser.athlete_info.sports.map((sport: string) => (
+                        <span key={sport} className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">
+                          {sport}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="flex justify-end">
+              <Button variant="outline" onClick={() => setSelectedUser(null)}>
+                Close
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </div>
   )
 }

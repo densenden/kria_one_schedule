@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Navigation } from '../../components/ui/Navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { useAuth } from '../../lib/contexts/AuthContext'
+import { supabase } from '../../lib/supabase/client'
 import { 
   User, 
   Camera,
@@ -43,6 +44,8 @@ export default function ProfilePage() {
   const [editing, setEditing] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [formData, setFormData] = useState({
     username: '',
     full_name: '',
@@ -51,9 +54,11 @@ export default function ProfilePage() {
     athlete_info: {
       experience: '',
       goals: [] as string[],
-      preferences: [] as string[]
+      preferences: [] as string[],
+      sports: [] as string[]
     }
   })
+  const [customSport, setCustomSport] = useState('')
   
   const { user, profile, updateProfile, loading: authLoading } = useAuth()
   const router = useRouter()
@@ -73,7 +78,8 @@ export default function ProfilePage() {
         athlete_info: {
           experience: profile.athlete_info?.experience || '',
           goals: profile.athlete_info?.goals || [],
-          preferences: profile.athlete_info?.preferences || []
+          preferences: profile.athlete_info?.preferences || [],
+          sports: profile.athlete_info?.sports || []
         }
       })
       fetchBookings()
@@ -129,17 +135,93 @@ export default function ProfilePage() {
         athlete_info: {
           experience: profile.athlete_info?.experience || '',
           goals: profile.athlete_info?.goals || [],
-          preferences: profile.athlete_info?.preferences || []
+          preferences: profile.athlete_info?.preferences || [],
+          sports: profile.athlete_info?.sports || []
         }
       })
     }
     setEditing(false)
   }
 
+  const handleAddCustomSport = () => {
+    if (customSport.trim() && !formData.athlete_info.sports.includes(customSport.trim())) {
+      setFormData({
+        ...formData,
+        athlete_info: {
+          ...formData.athlete_info,
+          sports: [...formData.athlete_info.sports, customSport.trim()]
+        }
+      })
+      setCustomSport('')
+    }
+  }
+
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file || !user) return
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file')
+      return
+    }
+
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be smaller than 5MB')
+      return
+    }
+
+    setUploading(true)
+
+    try {
+      // Create a unique filename
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${user.id}/avatar.${fileExt}`
+
+      // Upload file to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, { 
+          upsert: true,
+          contentType: file.type
+        })
+
+      if (uploadError) {
+        throw uploadError
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName)
+
+      // Update profile with new avatar URL
+      const { error: profileError } = await updateProfile({
+        avatar_url: publicUrl
+      })
+
+      if (profileError) {
+        throw profileError
+      }
+
+      toast.success('Avatar updated successfully!')
+    } catch (error) {
+      console.error('Error uploading avatar:', error)
+      toast.error('Failed to upload avatar')
+    } finally {
+      setUploading(false)
+      // Clear the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
+  }
+
   if (authLoading || !user || !profile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-ultramarine-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-jungle-teal/20 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     )
   }
@@ -152,9 +234,14 @@ export default function ProfilePage() {
 
   const goalOptions = ['strength', 'endurance', 'flexibility', 'weight loss', 'muscle gain', 'overall fitness']
   const preferenceOptions = ['morning classes', 'evening classes', 'group classes', 'individual training', 'high intensity', 'low impact']
+  const sportOptions = [
+    'Schwimmen', 'Functional Training', 'Yoga', 'Laufen', 'Krafttraining', 
+    'CrossFit', 'Calisthenics', 'Radsport', 'Kampfsport', 'Surfen', 
+    'Skifahren', 'Klettern', 'Trailrunning', 'Eiskunstlauf', 'Triathlon'
+  ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-ultramarine-50">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-jungle-teal/20">
       <Navigation />
       
       <main className="container mx-auto px-4 py-8">
@@ -170,7 +257,7 @@ export default function ProfilePage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2">
-                    <User className="h-5 w-5 text-cyan-600" />
+                    <User className="h-5 w-5 text-primary" />
                     Profile Information
                   </CardTitle>
                   {!editing ? (
@@ -211,7 +298,7 @@ export default function ProfilePage() {
                 {/* Avatar */}
                 <div className="flex items-center gap-6">
                   <div className="relative">
-                    <div className="w-24 h-24 rounded-full bg-cyan-100 flex items-center justify-center overflow-hidden">
+                    <div className="w-24 h-24 rounded-full bg-primary-100 flex items-center justify-center overflow-hidden">
                       {profile.avatar_url ? (
                         <img
                           src={profile.avatar_url}
@@ -219,13 +306,30 @@ export default function ProfilePage() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <User className="h-12 w-12 text-cyan-600" />
+                        <User className="h-12 w-12 text-primary" />
                       )}
                     </div>
                     {editing && (
-                      <button className="absolute bottom-0 right-0 bg-cyan-500 text-white rounded-full p-2 shadow-lg hover:bg-cyan-600 transition-colors">
-                        <Camera className="h-4 w-4" />
-                      </button>
+                      <>
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={handleAvatarUpload}
+                          className="hidden"
+                        />
+                        <button 
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={uploading}
+                          className="absolute bottom-0 right-0 bg-primary text-white rounded-full p-2 shadow-lg hover:bg-primary-600 transition-colors disabled:opacity-50"
+                        >
+                          {uploading ? (
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                          ) : (
+                            <Camera className="h-4 w-4" />
+                          )}
+                        </button>
+                      </>
                     )}
                   </div>
                   <div>
@@ -276,7 +380,7 @@ export default function ProfilePage() {
                     onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
                     disabled={!editing}
                     rows={3}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 transition-colors disabled:bg-gray-50 disabled:text-gray-500"
+                    className="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors disabled:bg-gray-50 disabled:text-gray-500"
                     placeholder="Tell us about yourself..."
                   />
                 </div>
@@ -288,7 +392,7 @@ export default function ProfilePage() {
                         type="checkbox"
                         checked={formData.is_public}
                         onChange={(e) => setFormData({ ...formData, is_public: e.target.checked })}
-                        className="rounded border-gray-300 text-cyan-600 focus:ring-cyan-500"
+                        className="rounded border-gray-300 text-primary focus:ring-primary"
                       />
                       <span className="text-sm text-gray-700">Make my profile public</span>
                     </label>
@@ -332,7 +436,7 @@ export default function ProfilePage() {
                                       athlete_info: { ...formData.athlete_info, goals }
                                     })
                                   }}
-                                  className="rounded border-gray-300 text-cyan-600 focus:ring-cyan-500"
+                                  className="rounded border-gray-300 text-primary focus:ring-primary"
                                 />
                                 <span className="text-sm text-gray-700 capitalize">{goal}</span>
                               </label>
@@ -359,11 +463,65 @@ export default function ProfilePage() {
                                       athlete_info: { ...formData.athlete_info, preferences }
                                     })
                                   }}
-                                  className="rounded border-gray-300 text-cyan-600 focus:ring-cyan-500"
+                                  className="rounded border-gray-300 text-primary focus:ring-primary"
                                 />
                                 <span className="text-sm text-gray-700 capitalize">{pref}</span>
                               </label>
                             ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Sports
+                          </label>
+                          <div className="space-y-3">
+                            <div className="flex flex-wrap gap-2">
+                              {sportOptions.map((sport) => (
+                                <label key={sport} className="flex items-center gap-2 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={formData.athlete_info.sports.includes(sport)}
+                                    onChange={(e) => {
+                                      const sports = e.target.checked
+                                        ? [...formData.athlete_info.sports, sport]
+                                        : formData.athlete_info.sports.filter(s => s !== sport)
+                                      setFormData({
+                                        ...formData,
+                                        athlete_info: { ...formData.athlete_info, sports }
+                                      })
+                                    }}
+                                    className="rounded border-gray-300 text-primary focus:ring-primary"
+                                  />
+                                  <span className="text-sm text-gray-700">{sport}</span>
+                                </label>
+                              ))}
+                            </div>
+                            
+                            <div className="flex gap-2">
+                              <input
+                                type="text"
+                                value={customSport}
+                                onChange={(e) => setCustomSport(e.target.value)}
+                                placeholder="Add custom sport..."
+                                className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                onKeyPress={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault()
+                                    handleAddCustomSport()
+                                  }
+                                }}
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={handleAddCustomSport}
+                                disabled={!customSport.trim()}
+                              >
+                                Add
+                              </Button>
+                            </div>
                           </div>
                         </div>
                       </>
@@ -376,7 +534,7 @@ export default function ProfilePage() {
                             <label className="block text-sm font-medium text-gray-700 mb-2">Goals</label>
                             <div className="flex flex-wrap gap-2">
                               {profile.athlete_info.goals.map((goal: string) => (
-                                <span key={goal} className="px-3 py-1 bg-cyan-100 text-cyan-800 rounded-full text-sm capitalize">
+                                <span key={goal} className="px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm capitalize">
                                   {goal}
                                 </span>
                               ))}
@@ -389,8 +547,21 @@ export default function ProfilePage() {
                             <label className="block text-sm font-medium text-gray-700 mb-2">Preferences</label>
                             <div className="flex flex-wrap gap-2">
                               {profile.athlete_info.preferences.map((pref: string) => (
-                                <span key={pref} className="px-3 py-1 bg-ultramarine-100 text-ultramarine-800 rounded-full text-sm capitalize">
+                                <span key={pref} className="px-3 py-1 bg-secondary-jungle-teal/20 text-secondary-jungle-teal rounded-full text-sm capitalize">
                                   {pref}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {profile.athlete_info?.sports && profile.athlete_info.sports.length > 0 && (
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Sports</label>
+                            <div className="flex flex-wrap gap-2">
+                              {profile.athlete_info.sports.map((sport: string) => (
+                                <span key={sport} className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">
+                                  {sport}
                                 </span>
                               ))}
                             </div>
@@ -410,7 +581,7 @@ export default function ProfilePage() {
             <div className="grid grid-cols-1 gap-4">
               <Card>
                 <CardContent className="p-6 text-center">
-                  <div className="text-2xl font-bold text-cyan-600 mb-1">
+                  <div className="text-2xl font-bold text-primary mb-1">
                     {upcomingBookings.length}
                   </div>
                   <div className="text-sm text-gray-600">Upcoming Sessions</div>
@@ -419,7 +590,7 @@ export default function ProfilePage() {
 
               <Card>
                 <CardContent className="p-6 text-center">
-                  <div className="text-2xl font-bold text-ultramarine-600 mb-1">
+                  <div className="text-2xl font-bold text-secondary-jungle-teal mb-1">
                     {confirmedBookings.length}
                   </div>
                   <div className="text-sm text-gray-600">Total Bookings</div>
@@ -440,14 +611,14 @@ export default function ProfilePage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-cyan-600" />
+                  <Calendar className="h-5 w-5 text-primary" />
                   Recent Bookings
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {loading ? (
                   <div className="text-center py-4">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-cyan-500 mx-auto"></div>
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
                   </div>
                 ) : upcomingBookings.length > 0 ? (
                   <div className="space-y-3">

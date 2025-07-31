@@ -10,10 +10,20 @@ VALUES (
     NOW()
 ) ON CONFLICT (id) DO NOTHING;
 
+-- Insert test user alice
+INSERT INTO auth.users (id, email, raw_user_meta_data, created_at)
+VALUES (
+    'a1b2c3d4-5e6f-7890-abcd-ef1234567890',
+    'alice@example.com',
+    '{"full_name": "Alice Cooper", "role": "user"}',
+    NOW()
+) ON CONFLICT (id) DO NOTHING;
+
 -- Insert test user profiles
 INSERT INTO public.profiles (id, username, full_name, bio, athlete_info, is_public)
 VALUES 
-    ('f47ac10b-58cc-4372-a567-0e02b2c3d479', 'sarah_j', 'Sarah Johnson', 'Certified fitness instructor with 10 years experience', '{"certifications": ["ACE Personal Trainer", "Animal Flow Level 2"], "specialties": ["functional training", "mobility"]}', true)
+    ('f47ac10b-58cc-4372-a567-0e02b2c3d479', 'sarah_j', 'Sarah Johnson', 'Certified fitness instructor with 10 years experience', '{"certifications": ["ACE Personal Trainer", "Animal Flow Level 2"], "specialties": ["functional training", "mobility"]}', true),
+    ('a1b2c3d4-5e6f-7890-abcd-ef1234567890', 'alice_c', 'Alice Cooper', 'Passionate fitness enthusiast exploring different training methods', '{"interests": ["swimming", "animal movement"], "experience_level": "intermediate"}', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- Insert courses

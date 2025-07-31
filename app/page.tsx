@@ -1,7 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { Navigation } from '../components/ui/Navigation'
+import { Footer } from '../components/ui/Footer'
 import { Button } from '../components/ui/Button'
 import { Card, CardContent } from '../components/ui/Card'
 import { 
@@ -15,16 +17,35 @@ import {
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-ultramarine-50 dark:from-gray-900 dark:to-gray-800 transition-colors">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-jungle-teal/20 dark:from-gray-900 dark:to-gray-800 transition-colors">
       <Navigation />
       
       <main>
         {/* Hero Section */}
-        <section className="container mx-auto px-4 py-16 text-center">
-          <div className="max-w-4xl mx-auto">
+        <section className="container mx-auto px-4 py-16 text-center relative">
+          {/* Background Logo */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
+            <Image
+              src="/assets/logos/KRIA_logo_outlines.svg"
+              alt=""
+              width={800}
+              height={800}
+              className="max-w-none"
+            />
+          </div>
+          <div className="max-w-4xl mx-auto relative z-10">
+            <div className="mb-8">
+              <Image
+                src="/assets/logos/KRIA_logo_big_square.svg"
+                alt="KRIA Training"
+                width={200}
+                height={200}
+                className="mx-auto"
+              />
+            </div>
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-6">
               Train Smarter,
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 to-ultramarine-500">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary-jungle-teal">
                 {' '}Connect Better
               </span>
             </h1>
@@ -61,8 +82,8 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Card className="text-center p-8 hover:shadow-xl transition-shadow">
-              <div className="w-16 h-16 bg-cyan-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Calendar className="h-8 w-8 text-cyan-600" />
+              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Calendar className="h-8 w-8 text-primary-600" />
               </div>
               <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Smart Scheduling</h3>
               <p className="text-gray-600 dark:text-gray-300">
@@ -71,8 +92,8 @@ export default function HomePage() {
             </Card>
 
             <Card className="text-center p-8 hover:shadow-xl transition-shadow">
-              <div className="w-16 h-16 bg-ultramarine-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Users className="h-8 w-8 text-ultramarine-600" />
+              <div className="w-16 h-16 bg-secondary-jungle-teal/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Users className="h-8 w-8 text-secondary-jungle-teal" />
               </div>
               <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Community Driven</h3>
               <p className="text-gray-600 dark:text-gray-300">
@@ -131,8 +152,11 @@ export default function HomePage() {
               }
             ].map((course, index) => (
               <Card key={index} className="overflow-hidden hover:shadow-xl transition-shadow">
-                <div className={`h-32 bg-gradient-to-br ${course.color} flex items-center justify-center text-4xl`}>
-                  {course.icon}
+                <div className={`h-32 bg-gradient-to-br ${course.color} flex items-center justify-center text-4xl relative overflow-hidden`}>
+                  <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]"></div>
+                  <span className="relative z-10">
+                    {course.icon}
+                  </span>
                 </div>
                 <CardContent className="p-6">
                   <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">{course.title}</h3>
@@ -173,16 +197,19 @@ export default function HomePage() {
                   ))}
                 </div>
 
-                <div className="bg-gradient-to-br from-cyan-500 to-ultramarine-500 rounded-xl p-8 text-white">
+                <div className="bg-gradient-to-br from-primary to-secondary-jungle-teal rounded-xl p-8 text-white relative overflow-hidden">
+                  <div className="absolute inset-0 bg-white/5 backdrop-blur-sm"></div>
+                  <div className="relative z-10">
                   <div className="text-center">
                     <div className="text-4xl font-bold mb-2">500+</div>
-                    <div className="text-cyan-100 mb-6">Active Members</div>
+                    <div className="text-primary-100 mb-6">Active Members</div>
                     
                     <div className="text-4xl font-bold mb-2">50+</div>
-                    <div className="text-cyan-100 mb-6">Weekly Sessions</div>
+                    <div className="text-primary-100 mb-6">Weekly Sessions</div>
                     
                     <div className="text-4xl font-bold mb-2">98%</div>
-                    <div className="text-cyan-100">Satisfaction Rate</div>
+                    <div className="text-primary-100">Satisfaction Rate</div>
+                  </div>
                   </div>
                 </div>
               </div>
@@ -216,6 +243,7 @@ export default function HomePage() {
           </div>
         </section>
       </main>
+      <Footer />
     </div>
   )
 }

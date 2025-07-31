@@ -142,8 +142,8 @@ export default function SchedulePage() {
 
   if (authLoading || !user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-ultramarine-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-jungle-teal/20 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     )
   }
@@ -151,7 +151,7 @@ export default function SchedulePage() {
   const weekDays = getWeekDays()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-ultramarine-50">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-jungle-teal/20">
       <Navigation />
       
       <main className="container mx-auto px-4 py-8">
@@ -217,7 +217,7 @@ export default function SchedulePage() {
         {/* Calendar Grid */}
         {loading ? (
           <div className="text-center py-16">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
             <p className="text-gray-600">Loading schedule...</p>
           </div>
         ) : (
@@ -227,13 +227,13 @@ export default function SchedulePage() {
               const isToday = isSameDay(day, new Date())
               
               return (
-                <Card key={index} className={`min-h-[400px] ${isToday ? 'ring-2 ring-cyan-300' : ''}`}>
+                <Card key={index} className={`min-h-[400px] ${isToday ? 'ring-2 ring-primary/50' : ''}`}>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-center">
                       <div className="text-sm text-gray-500">
                         {format(day, 'EEE')}
                       </div>
-                      <div className={`text-lg ${isToday ? 'text-cyan-600 font-bold' : 'text-gray-900'}`}>
+                      <div className={`text-lg ${isToday ? 'text-primary font-bold' : 'text-gray-900'}`}>
                         {format(day, 'd')}
                       </div>
                     </CardTitle>
@@ -274,7 +274,7 @@ export default function SchedulePage() {
                             </div>
                             
                             <div className="flex items-center justify-between">
-                              <span className="font-bold text-cyan-600">€{schedule.price}</span>
+                              <span className="font-bold text-primary">€{schedule.price}</span>
                               <Button
                                 variant="primary"
                                 size="sm"

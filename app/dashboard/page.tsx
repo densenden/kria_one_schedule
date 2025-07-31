@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { 
   Calendar, 
   BookOpen, 
@@ -89,8 +90,8 @@ export default function DashboardPage() {
 
   if (authLoading || !user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-ultramarine-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-jungle-teal/20 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
     )
   }
@@ -108,7 +109,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-50 to-ultramarine-50">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-jungle-teal/20">
       <Navigation />
       
       <main className="container mx-auto px-4 py-8">
@@ -126,11 +127,11 @@ export default function DashboardPage() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
-                <div className="p-2 bg-cyan-100 rounded-lg">
-                  <Calendar className="h-6 w-6 text-cyan-600" />
+                <div className="p-3 bg-primary-100 rounded-lg">
+                  <Calendar className="h-6 w-6 text-primary" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Upcoming Sessions</p>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Upcoming Sessions</p>
                   <p className="text-2xl font-bold text-gray-900">{stats.upcomingSessions}</p>
                 </div>
               </div>
@@ -140,11 +141,11 @@ export default function DashboardPage() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
-                <div className="p-2 bg-ultramarine-100 rounded-lg">
-                  <TrendingUp className="h-6 w-6 text-ultramarine-600" />
+                <div className="p-3 bg-secondary-jungle-teal/20 rounded-lg">
+                  <TrendingUp className="h-6 w-6 text-secondary-jungle-teal" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Bookings</p>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Total Bookings</p>
                   <p className="text-2xl font-bold text-gray-900">{stats.totalBookings}</p>
                 </div>
               </div>
@@ -154,11 +155,11 @@ export default function DashboardPage() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
-                <div className="p-2 bg-green-100 rounded-lg">
+                <div className="p-3 bg-green-100 rounded-lg">
                   <Euro className="h-6 w-6 text-green-600" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total Invested</p>
+                  <p className="text-sm font-medium text-gray-600 mb-1">Total Invested</p>
                   <p className="text-2xl font-bold text-gray-900">€{stats.totalSpent}</p>
                 </div>
               </div>
@@ -169,19 +170,19 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Your Upcoming Sessions */}
           <Card>
-            <CardHeader>
+            <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-cyan-600" />
+                <Calendar className="h-5 w-5 text-primary" />
                 Your Upcoming Sessions
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
               {upcomingBookings.length > 0 ? (
                 <div className="space-y-4">
                   {upcomingBookings.map((booking) => (
                     <div
                       key={booking.id}
-                      className="p-4 bg-gray-50 rounded-lg border border-gray-200"
+                      className="p-4 bg-gray-50/80 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700"
                     >
                       <h4 className="font-semibold text-gray-900">
                         {booking.schedule.course.title}
@@ -218,23 +219,23 @@ export default function DashboardPage() {
 
           {/* Available Sessions */}
           <Card>
-            <CardHeader>
+            <CardHeader className="pb-4">
               <CardTitle className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5 text-ultramarine-600" />
+                <BookOpen className="h-5 w-5 text-secondary-jungle-teal" />
                 Available Sessions
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0">
               {loading ? (
                 <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500 mx-auto"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
                 </div>
               ) : upcomingSchedules.length > 0 ? (
                 <div className="space-y-4">
                   {upcomingSchedules.slice(0, 4).map((schedule) => (
                     <div
                       key={schedule.schedule_id}
-                      className="p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-cyan-300 transition-colors"
+                      className="p-4 bg-gray-50/80 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-primary/50 transition-colors"
                     >
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
@@ -280,10 +281,10 @@ export default function DashboardPage() {
 
         {/* Quick Actions */}
         <Card className="mt-8">
-          <CardHeader>
+          <CardHeader className="pb-4">
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <Link href="/courses">
                 <Button variant="primary" className="w-full h-16 flex flex-col items-center justify-center">

@@ -25,22 +25,22 @@
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --background: 220 13% 8%;
+    --foreground: 220 9% 95%;
+    --card: 220 13% 12%;
+    --card-foreground: 220 9% 95%;
     --primary: 188 89% 41%;
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --primary-foreground: 220 13% 8%;
+    --secondary: 220 13% 18%;
+    --secondary-foreground: 220 9% 95%;
+    --muted: 220 13% 18%;
+    --muted-foreground: 220 9% 70%;
+    --accent: 220 13% 18%;
+    --accent-foreground: 220 9% 95%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
+    --destructive-foreground: 220 9% 95%;
+    --border: 220 13% 18%;
+    --input: 220 13% 18%;
     --ring: 188 89% 41%;
   }
 
@@ -49,7 +49,7 @@
   }
   
   body {
-    @apply bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300;
+    @apply bg-white text-gray-900 dark:bg-gray-800 dark:text-gray-100 transition-colors duration-300;
   }
   
   html {
@@ -86,31 +86,39 @@
 
 @layer components {
   .glassmorphism {
-    @apply backdrop-blur-md bg-white/80 border border-white/20 shadow-xl;
+    @apply backdrop-blur-xl bg-white/90 dark:bg-gray-900/90 border border-white/30 dark:border-gray-700/30 shadow-2xl;
+  }
+  
+  .glassmorphism-light {
+    @apply backdrop-blur-lg bg-white/95 dark:bg-gray-800/95 border border-white/40 dark:border-gray-600/40 shadow-xl;
+  }
+  
+  .glassmorphism-strong {
+    @apply backdrop-blur-2xl bg-white/70 dark:bg-gray-900/70 border border-white/20 dark:border-gray-700/20 shadow-2xl;
   }
   
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-lg bg-cyan-500 px-6 py-3 text-sm font-medium text-white shadow-lg hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-all duration-200 hover:shadow-xl;
+    @apply inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white shadow-lg hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 hover:shadow-xl;
   }
   
   .btn-secondary {
     @apply inline-flex items-center justify-center rounded-lg bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-all duration-200;
   }
 
-  .btn-ultramarine {
-    @apply inline-flex items-center justify-center rounded-lg bg-ultramarine-500 px-6 py-3 text-sm font-medium text-white shadow-lg hover:bg-ultramarine-600 focus:outline-none focus:ring-2 focus:ring-ultramarine-500 focus:ring-offset-2 transition-all duration-200 hover:shadow-xl;
+  .btn-accent {
+    @apply inline-flex items-center justify-center rounded-lg bg-secondary-jungle-teal px-6 py-3 text-sm font-medium text-white shadow-lg hover:bg-secondary-jungle-teal/80 focus:outline-none focus:ring-2 focus:ring-secondary-jungle-teal focus:ring-offset-2 transition-all duration-200 hover:shadow-xl;
   }
 
   .card {
-    @apply rounded-xl bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-200 hover:shadow-xl;
+    @apply rounded-xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm shadow-lg border border-gray-200/50 dark:border-gray-700/50 overflow-hidden transition-all duration-200 hover:shadow-xl hover:backdrop-blur-md;
   }
 
   .card-glass {
-    @apply rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-xl border border-white/20 dark:border-gray-700/20 overflow-hidden;
+    @apply rounded-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg shadow-2xl border border-white/30 dark:border-gray-700/30 overflow-hidden transition-all duration-300 hover:bg-white/90 dark:hover:bg-gray-800/90 hover:backdrop-blur-xl;
   }
 
   .input {
-    @apply w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-4 py-3 text-sm focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 transition-colors;
+    @apply w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm text-gray-900 dark:text-gray-100 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors;
   }
 
   .course-card {
@@ -122,19 +130,19 @@
   }
 
   .schedule-slot {
-    @apply p-4 rounded-lg border-2 border-gray-200 dark:border-gray-600 hover:border-cyan-300 bg-white dark:bg-gray-800 hover:bg-cyan-50/50 dark:hover:bg-cyan-900/20 transition-all duration-200 cursor-pointer group;
+    @apply p-4 rounded-lg border-2 border-gray-200 dark:border-gray-600 hover:border-primary/50 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm hover:bg-primary-50/50 dark:hover:bg-primary-900/20 transition-all duration-200 cursor-pointer group hover:backdrop-blur-md;
   }
 
   .schedule-slot.booked {
-    @apply border-cyan-500 bg-cyan-50 dark:bg-cyan-900/30;
+    @apply border-primary bg-primary-50/80 dark:bg-primary-900/30 backdrop-blur-lg;
   }
 
   .modal-overlay {
-    @apply fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4;
+    @apply fixed inset-0 bg-black/40 backdrop-blur-md z-50 flex items-center justify-center p-4;
   }
 
   .modal-content {
-    @apply relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-800 rounded-xl shadow-2xl;
+    @apply relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-xl shadow-2xl border border-white/30 dark:border-gray-700/30;
   }
 }
 

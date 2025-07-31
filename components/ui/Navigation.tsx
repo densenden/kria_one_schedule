@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { 
   Calendar, 
@@ -12,7 +13,8 @@ import {
   X, 
   LogOut,
   Home,
-  Settings
+  Settings,
+  Shield
 } from 'lucide-react'
 import { Button } from './Button'
 import { ThemeToggle } from './ThemeToggle'
@@ -23,7 +25,7 @@ export function Navigation() {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
-  const { user, profile, signOut } = useAuth()
+  const { user, profile, signOut, isAdmin } = useAuth()
 
   const handleSignOut = async () => {
     try {
@@ -41,14 +43,21 @@ export function Navigation() {
     { href: '/schedule', label: 'Schedule', icon: Calendar },
     { href: '/community', label: 'Community', icon: Users },
     { href: '/profile', label: 'Profile', icon: User },
+    ...(isAdmin ? [{ href: '/admin', label: 'Admin', icon: Shield }] : []),
   ]
 
   if (!user) {
     return (
-      <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors">
+      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-600 transition-colors">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            KRIA
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/assets/logos/KRIAWort-Bildmarke_unterzeile_indigo.svg"
+              alt="KRIA Training"
+              width={120}
+              height={40}
+              className="w-auto h-10"
+            />
           </Link>
           <div className="flex items-center gap-4">
             <ThemeToggle />
@@ -69,11 +78,17 @@ export function Navigation() {
 
   return (
     <>
-      <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors">
+      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-600 transition-colors">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/dashboard" className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              KRIA
+            <Link href="/dashboard" className="flex items-center">
+              <Image
+                src="/assets/logos/KRIAWort-Bildmarke_unterzeile_indigo.svg"
+                alt="KRIA Training"
+                width={120}
+                height={40}
+                className="w-auto h-10"
+              />
             </Link>
 
             {/* Desktop Navigation */}
@@ -87,8 +102,8 @@ export function Navigation() {
                     href={item.href}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300'
-                        : 'text-gray-700 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                        ? 'bg-[#3345a6]/10 dark:bg-[#3345a6]/20 text-[#3345a6] dark:text-[#3345a6]'
+                        : 'text-gray-700 dark:text-gray-300 hover:text-[#3345a6] dark:hover:text-[#3345a6] hover:bg-gray-50 dark:hover:bg-gray-800'
                     }`}
                   >
                     <Icon className="h-4 w-4" />
@@ -101,27 +116,6 @@ export function Navigation() {
             {/* User Menu */}
             <div className="hidden md:flex items-center gap-4">
               <ThemeToggle />
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-cyan-100 dark:bg-cyan-900/30 flex items-center justify-center">
-                  {profile?.avatar_url ? (
-                    <img
-                      src={profile.avatar_url}
-                      alt={profile.full_name || 'User'}
-                      className="w-8 h-8 rounded-full"
-                    />
-                  ) : (
-                    <User className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
-                  )}
-                </div>
-                <div className="text-sm">
-                  <div className="font-medium text-gray-900 dark:text-gray-100">
-                    {profile?.full_name || 'User'}
-                  </div>
-                  <div className="text-gray-500 dark:text-gray-400">
-                    {profile?.username ? `@${profile.username}` : user.email}
-                  </div>
-                </div>
-              </div>
               <Button
                 variant="ghost"
                 size="sm"
@@ -161,8 +155,8 @@ export function Navigation() {
                       onClick={() => setIsOpen(false)}
                       className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                         isActive
-                          ? 'bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300'
-                          : 'text-gray-700 dark:text-gray-300 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                          ? 'bg-[#3345a6]/10 dark:bg-[#3345a6]/20 text-[#3345a6] dark:text-[#3345a6]'
+                          : 'text-gray-700 dark:text-gray-300 hover:text-[#3345a6] dark:hover:text-[#3345a6] hover:bg-gray-50 dark:hover:bg-gray-800'
                       }`}
                     >
                       <Icon className="h-4 w-4" />
