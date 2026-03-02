@@ -1,175 +1,226 @@
-# KRIA Training Community Tool – Claude.md
+# White-Label Sports Community Platform – Claude.md
 
-## Projektübersicht
+## Project Overview
 
-### Kurze Beschreibung
+### Description
 
-Die KRIA Training App ist eine moderne, bewusst gestaltete Buchungs- und Community-Plattform für Sportangebote (z. B. Schwimmen, Functional Training, Animal Movement). Nutzer können sich anmelden, Profile mit Athleteninfos pflegen, Kurse im Kalender buchen und einsehen, wer teilnimmt. Das Design ist achtsam-minimalistisch, hell, viel Weißraum mit cyan- und ultramarinfarbenen Akzenten. Dark Mode verfügbar.
+A scalable white-label SaaS platform for sports communities (gyms, coaches, studios). Each provider can run their own branded community with dedicated members, courses, and content. Multi-tenant architecture allows multiple gyms to operate independently within a single deployment.
 
-### Hauptziele
+### Key Goals
 
-- Intuitive Buchung von Sportkursen
-- Moderne Kalenderdarstellung mit Vorschau und animierten Modals
-- Aufbau einer Community mit Profilen und Teilnehmerübersicht
-- Integration mit Medusa.js (Produktmanagement) und Stripe Checkout
-- App-optimiertes UI mit Fokus auf mobile Nutzung
+- Multi-tenant platform supporting unlimited gyms/studios
+- White-label branding (colors, logo, custom domain)
+- Course booking with Stripe Connect payments
+- Member and coach management via Clerk
+- CMS for customizable info pages
+- Self-service gym onboarding
 
-### Technologie-Stack
+### Tech Stack
 
-- **Frontend:** React Native (Web + iOS + Android), Tailwind (via Nativewind)
-- **Backend:** Supabase (DB, Auth, Storage)
-- **Commerce:** Medusa.js (Produkte = Kurse)
-- **Zahlung:** Stripe
-- **E-Mail:** Sendgrid für Transaktionsmails
-
----
-
-## Projektstruktur
-
-### Verzeichnisstruktur
-
-```
-/kria-app
-  /components         # Wiederverwendbare UI-Komponenten
-  /screens            # Views & Routen (z. B. CalendarScreen, ProfileScreen)
-  /assets
-    /images           # PNGs, z. B. bg_course1.png, bg_course2.png
-  /lib                # API-Wrapper für Supabase, Medusa, Stripe
-  /styles             # Global styles (z. B. Colors, Spacing)
-  /contexts           # Global State (z. B. AuthContext)
-  /utils              # Hilfsfunktionen
-```
-
-### Wichtige Dateien
-
-- `App.tsx` – Einstiegspunkt der App
-- `calendar.config.ts` – Slot-Definitionen & Darstellungskonfiguration
-- `tailwind.config.js` – Farben (weiß, cyan, ultramarin), Dark Mode
-
-### Konventionen
-
-- **Component Naming:** PascalCase
-- **File Naming:** kebab-case.tsx
-- **Slot Formatierung:** `Weekday HH:MM–HH:MM`
-- **Assets:** PNG-Dateien als quadratische Hintergründe (`bg_course1.png`, `bg_movement2.png`)
+| Layer | Technology |
+|-------|------------|
+| Frontend | Next.js 14 (App Router), React Server Components |
+| Styling | Tailwind CSS, CSS Variables for theming |
+| Auth | Clerk (Multi-tenant user management) |
+| Database | Supabase (PostgreSQL + RLS) |
+| Payments | Stripe Connect |
+| Email | Sendgrid |
+| Storage | Supabase Storage |
+| Hosting | Vercel |
 
 ---
 
-## Entwicklungsrichtlinien
+## Project Structure
 
-### Code-Standards
+```
+/kria-community
+├── app/
+│   ├── (public)/              # Public routes (landing, courses, schedule)
+│   ├── (auth)/                # Clerk auth routes (sign-in, sign-up)
+│   ├── (dashboard)/           # Protected member routes (profile, bookings)
+│   ├── admin/                 # Admin routes (coach/admin only)
+│   │   ├── courses/
+│   │   ├── schedules/
+│   │   ├── members/
+│   │   ├── settings/
+│   │   └── pages/             # CMS
+│   ├── onboard/               # Gym onboarding flow
+│   ├── api/
+│   │   └── webhooks/          # Clerk & Stripe webhooks
+│   ├── layout.tsx
+│   └── globals.css
+├── components/
+│   ├── ui/                    # Base UI components
+│   ├── layout/                # Header, Footer, Sidebar
+│   ├── forms/                 # Form components
+│   ├── calendar/              # Calendar/schedule components
+│   └── admin/                 # Admin-specific components
+├── lib/
+│   ├── supabase/              # Supabase client & types
+│   ├── clerk/                 # Clerk utilities
+│   ├── stripe/                # Stripe utilities
+│   └── utils/                 # General utilities
+├── types/                     # TypeScript types
+├── hooks/                     # Custom React hooks
+├── contexts/                  # React contexts (tenant, etc.)
+├── public/
+├── supabase/
+│   └── migrations/
+├── agent-os/                  # Agent OS standards
+└── .claude/                   # Claude Code commands & agents
+```
 
-- TypeScript only
+### File Naming
+
+- **Components:** PascalCase (`Button.tsx`, `CourseCard.tsx`)
+- **Files:** kebab-case (`course-service.ts`, `use-tenant.ts`)
+- **Types:** PascalCase with `.types.ts` suffix
+
+---
+
+## Database Schema
+
+### Core Tables
+
+- `tenants` - Gyms/Studios with branding and Stripe Connect
+- `users` - Clerk-synced users with tenant membership and roles
+- `courses` - Course definitions per tenant
+- `schedules` - Course schedule instances
+- `bookings` - User bookings with payment status
+- `pages` - CMS content per tenant
+
+### Multi-Tenant Pattern
+
+All tables have `tenant_id` column with RLS policies for isolation:
+
+```sql
+CREATE POLICY "tenant_isolation" ON {table}
+    USING (tenant_id = current_setting('app.current_tenant_id')::uuid);
+```
+
+---
+
+## Development Guidelines
+
+### Code Standards
+
+- TypeScript strict mode
 - ESLint + Prettier enforced
-- Tailwind für UI mit Utility-First-Prinzip
+- Server Components by default, Client Components only when needed
+- Tailwind CSS utility-first
 
 ### Best Practices
 
-- Alle UI-Komponenten sind responsive + barrierefrei
-- Modals (z. B. Kursinfo) nutzen glassmorphism (blur, transparency)
-- Kalendereinträge nutzen animierte Hover- oder Tap-Effekte
+- All UI components responsive + accessible
+- CSS Variables for dynamic tenant theming
+- Server Actions for mutations where possible
+- Edge-ready code (no Node.js-only APIs)
 
-### Verbotene Praktiken
+### Forbidden Practices
 
-- Kein direktes DOM-Manipulieren
-- Keine Inline-Styles, außer bei dynamischem Styling
-
----
-
-## Aufgaben und Workflows
-
-### Häufige Aufgaben
-
-- ♦ Kurse in Medusa als Produkte erstellen
-- ♦ Kurstermine in Supabase speichern mit Bezug auf Produkt
-- ♦ Teilnehmerdaten verwalten
-
-### Spezielle Anweisungen
-
-- Kalenderansicht nutzt eine Raster-Darstellung mit Vorschau
-- Kursdetailseite erscheint als Modal (75% Bildschirm, zentriert, weiß + Schatten)
-- Admin kann Slots via UI belegen
-
-### Testing-Anforderungen
-
-- E2E via Detox
-- Unit-Tests für Komponenten
-- Testdaten via Mock-Datenbanken
+- No direct DOM manipulation
+- No inline styles (except dynamic theming)
+- No hardcoded tenant-specific values
+- No bypassing RLS policies
 
 ---
 
-## Kontextinformationen
+## Tenant Resolution
 
-### Geschäftslogik
+Tenants are resolved via:
 
-- Kursbuchung = Checkout mit Stripe = Platzreservierung
-- „Teilnehmer“ sehen sich gegenseitig (wenn öffentlich)
-- Nur bezahlte Buchungen werden angezeigt
+1. **Subdomain:** `{slug}.sportsplatform.com`
+2. **Custom Domain:** Mapped in `tenants.domain`
 
-### Externe Abhängigkeiten
-
-- Medusa REST API (Produkte = Kurse)
-- Supabase: Auth, Realtime, Storage
-- Sendgrid für Transaktions-E-Mails
-
-### Bekannte Probleme
-
-- Stripe Webhooks noch nicht verbunden mit Supabase-Status
-- Medusa-Produktvarianten noch nicht verlinkt mit Zeit-Slots
+Middleware extracts tenant and sets context for:
+- Database queries (RLS)
+- Theming (CSS variables)
+- Clerk organization context
 
 ---
 
-## Beispiele
+## Key Workflows
 
-### UI: Kalender (Minimal)
+### Course Booking
 
-- weiße Kacheln mit cyan border
-- Tagesübersicht mit Bewegungstyp-Vorschau
-- Tap öffnet Modal (glassy, mit PNG-Hintergrund)
+1. User selects course/schedule
+2. Stripe Checkout (connected to gym's Stripe account)
+3. Webhook confirms payment → booking confirmed
+4. Email notification sent
 
-### Code-Beispiel: Slot-Komponente
+### Gym Onboarding
 
-```tsx
-<CalendarSlot
-  title="Animal Movement"
-  time="18:00–19:00"
-  location="Turnhalle 1"
-  type="Conditioning"
-  image="/assets/images/bg_movement1.png"
-/>
-```
+1. `/onboard` - Gym details form
+2. Owner creates Clerk account
+3. Branding setup (color, logo)
+4. Stripe Connect onboarding
+5. Redirect to admin dashboard
 
-### Kommandos
+### Admin CMS
+
+Content blocks in JSON format, rendered via components.
+
+---
+
+## Commands
 
 ```bash
-pnpm dev             # Lokale Entwicklung starten
-pnpm build           # Build erzeugen
-pnpm test            # Tests ausführen
+pnpm dev              # Start development
+pnpm build            # Production build
+pnpm lint             # Lint check
+pnpm typecheck        # TypeScript check
+pnpm test             # Run tests
 ```
 
 ---
 
-## PNG-Hintergründe (Austauschbar)
+## Environment Variables
 
-- `bg_course1.png`
-- `bg_movement1.png`
-- `bg_fitness1.png`
-- `bg_swimming1.png`
-- `bg_conditioning1.png`
+```env
+# Clerk
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
 
-Diese sollten quadratisch, hochauflösend (min. 1080x1080) und stilistisch im selben Look gehalten sein. Am besten mit Blur-Overlay kombinierbar.
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# Stripe
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+
+# App
+NEXT_PUBLIC_APP_URL=
+```
 
 ---
 
-## Offene Fragen
+## Agent OS
 
-- Sollen öffentliche Profile DSGVO-konform bestätigt werden?
-- Wie granular sollen Admins Kurs-Varianten definieren können (z. B. Level, Intensität)?
-- Sollen wiederkehrende Kurse (Serien) unterstützt werden?
-- Soll die App in mehreren Sprachen starten? (i18n)
-- Wünschst du Animationen mit Framer Motion oder rein Native?
+This project uses Agent OS for development standards and workflows.
+
+### Commands (via `/` in Claude Code)
+- `/plan-product` - Product planning
+- `/shape-spec` - Spec shaping
+- `/write-spec` - Spec writing
+- `/create-tasks` - Task creation
+- `/implement-tasks` - Implementation
+
+### Standards
+Located in `agent-os/standards/` - follow these for consistent code quality.
 
 ---
 
-> Dieses Dokument ist Grundlage für Claude Code zur Weiterentwicklung der App. Es beschreibt alle UX- und Backend-relevanten Bereiche für das KRIA Training Tool.
+## Open Questions
 
+- [ ] Platform domain name for subdomains?
+- [ ] Pricing model (per booking fee vs. monthly)?
+- [ ] Default course types or fully customizable?
+- [ ] Recurring schedule support?
+- [ ] Multi-language (i18n)?
+
+---
+
+> This document guides Claude Code development of the White-Label Sports Community Platform.

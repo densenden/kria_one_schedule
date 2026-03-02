@@ -1,13 +1,16 @@
 import type { Metadata } from 'next'
-import { Public_Sans } from 'next/font/google'
+import { Inter } from 'next/font/google'
+import { ClerkProvider } from '@clerk/nextjs'
 import './globals.css'
-import { Providers } from '../components/providers/Providers'
 
-const publicSans = Public_Sans({ subsets: ['latin'] })
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'KRIA Training Community',
-  description: 'Book sports courses and connect with the community',
+  title: {
+    default: 'Sports Community Platform',
+    template: '%s | Sports Community Platform',
+  },
+  description: 'Your white-label sports community platform. Book courses, connect with members, and grow your fitness community.',
 }
 
 export default function RootLayout({
@@ -16,12 +19,18 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={publicSans.className}>
-        <Providers>
+    <ClerkProvider
+      appearance={{
+        variables: {
+          colorPrimary: 'var(--primary, #0891b2)',
+        },
+      }}
+    >
+      <html lang="en" suppressHydrationWarning>
+        <body className={inter.className}>
           {children}
-        </Providers>
-      </body>
-    </html>
+        </body>
+      </html>
+    </ClerkProvider>
   )
 }
